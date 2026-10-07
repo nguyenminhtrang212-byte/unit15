@@ -1,0 +1,599 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>What Shall I Wear?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+/* Layout: một "tủ quần áo" trình chiếu — sân khấu slide ở giữa, thanh điều hướng dưới, mỗi slide là một móc treo nội dung */
+:root{
+  --bg:#E9EEF7; --paper:#FFFFFF; --ink:#1B2547; --muted:#5A6489; --line:#CCD5EA;
+  --denim:#2F4F8F; --denimSoft:#DCE5F6; --thread:#E2553A; --threadSoft:#FBE0D9; --mustard:#E7A923; --mustardSoft:#FBEFCF;
+  --ok:#1F8A55; --okSoft:#DAF2E5; --bad:#C8402E; --badSoft:#FADDD8;
+  --display:"Fredoka","Nunito",system-ui,sans-serif; --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif; --hand:"Patrick Hand","Nunito",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10162B; --paper:#1A2340; --ink:#EAEFFC; --muted:#A7B1D3; --line:#2E3A63;
+  --denim:#8FB0F0; --denimSoft:#25335C; --thread:#FF7A5E; --threadSoft:#4A2620; --mustard:#F2BE4A; --mustardSoft:#45391A;
+  --ok:#5BD496; --okSoft:#163A29; --bad:#FF7E6C; --badSoft:#47231E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10162B; --paper:#1A2340; --ink:#EAEFFC; --muted:#A7B1D3; --line:#2E3A63;
+  --denim:#8FB0F0; --denimSoft:#25335C; --thread:#FF7A5E; --threadSoft:#4A2620; --mustard:#F2BE4A; --mustardSoft:#45391A;
+  --ok:#5BD496; --okSoft:#163A29; --bad:#FF7E6C; --badSoft:#47231E; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;display:flex;flex-direction:column}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+.top{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:2px dashed var(--line)}
+.brand{font-family:var(--display);font-weight:700;font-size:18px;color:var(--denim);white-space:nowrap}
+.brand span{color:var(--thread)}
+.top .sp{flex:1}
+@media (max-width:520px){.brand{display:none}.top{gap:6px}.tog{padding:4px 9px;font-size:13px}}
+.tog{white-space:nowrap;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700}
+.tog[aria-pressed=true]{background:var(--denim);color:var(--paper);border-color:var(--denim)}
+.stage{flex:1;min-height:0;overflow-y:auto;padding:16px}
+.slide{display:none;max-width:1040px;margin:0 auto;animation:in .35s ease}
+.slide.on{display:block}
+@keyframes in{from{opacity:.4;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide{animation:none}.hang{animation:none!important}}
+.eyebrow{font-family:var(--hand);font-size:20px;color:var(--thread);margin:0}
+h1,h2{font-family:var(--display);font-weight:700;margin:0 0 6px;text-wrap:balance;line-height:1.1}
+h1{font-size:clamp(38px,7vw,68px)}
+h2{font-size:clamp(26px,4vw,38px)}
+.lead{color:var(--muted);margin:0 0 14px;max-width:62ch}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:2px dashed var(--line);background:var(--bg)}
+.nbtn{border:2px solid var(--ink);background:var(--paper);border-radius:12px;padding:6px 16px;font-weight:800;font-size:16px}
+.nbtn.go{background:var(--ink);color:var(--paper)}
+.nbtn:disabled{opacity:.35;cursor:default}
+.prog{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--thread) 0 10px,var(--mustard) 10px 20px);transition:width .3s}
+.cnt{font-variant-numeric:tabular-nums;font-weight:800;color:var(--muted);font-size:14px;min-width:46px;text-align:right}
+/* title slide */
+.rail{position:relative;height:16px;border-radius:99px;background:var(--muted);margin:22px 0 0}
+.hangers{display:flex;justify-content:space-around;gap:6px;flex-wrap:wrap;margin-top:-6px}
+.hang{display:flex;flex-direction:column;align-items:center;transform-origin:top center;animation:swing 3.2s ease-in-out infinite}
+.hang:nth-child(2n){animation-delay:-1.4s}.hang:nth-child(3n){animation-delay:-.7s}
+@keyframes swing{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.hang .hook{width:2px;height:16px;background:var(--muted)}
+.hang svg{width:clamp(64px,12vw,110px);height:auto}
+.hint{display:inline-flex;gap:8px;align-items:center;background:var(--mustardSoft);border-radius:12px;padding:8px 14px;font-weight:700;margin-top:14px}
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{position:relative;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:10px 10px 12px;text-align:center;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);border-color:var(--denim)}
+.card.say{border-color:var(--thread)}
+.card svg{width:84px;height:84px;display:block;margin:0 auto}
+.w{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.1;margin-top:4px}
+.ipa{font-family:"Lucida Sans Unicode","Arial Unicode MS",var(--body);color:var(--denim);font-size:14px}
+.vi{font-size:14px;color:var(--muted);font-weight:700}
+.tag{display:inline-block;font-size:12px;background:var(--denimSoft);color:var(--ink);border-radius:99px;padding:1px 8px;margin-top:4px;font-weight:700}
+.star{position:absolute;top:8px;right:8px;background:var(--thread);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:1px 7px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 12px;font-size:14px;color:var(--muted)}
+.legend b{color:var(--ink)}
+.pill{display:inline-block;background:var(--thread);color:#fff;font-weight:800;border-radius:99px;padding:0 8px;font-size:12px}
+/* panels */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.box{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:14px 16px;min-width:0}
+.box h3{font-family:var(--display);font-weight:600;font-size:20px;margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);background:var(--paper);border-radius:99px;padding:5px 12px;font-weight:700;font-size:15px}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip .sw{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:5px;border:1px solid rgba(0,0,0,.2)}
+.say-btn{border:0;background:var(--denimSoft);border-radius:10px;padding:2px 8px;font-size:15px}
+.phrase{font-family:var(--display);font-size:clamp(24px,4vw,34px);font-weight:600;line-height:1.2}
+.phrase .p{color:var(--thread)}.phrase .c{color:var(--denim)}.phrase .n{text-decoration:underline;text-decoration-color:var(--mustard);text-decoration-thickness:4px;text-underline-offset:5px}
+.formula{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:800;margin-top:8px}
+.formula span{border-radius:10px;padding:3px 10px}
+.f1{background:var(--threadSoft)}.f2{background:var(--denimSoft)}.f3{background:var(--mustardSoft)}
+.preview{display:flex;justify-content:center;align-items:center;background:repeating-linear-gradient(45deg,var(--bg) 0 12px,var(--paper) 12px 24px);border-radius:14px;min-height:220px}
+.preview svg{width:200px;height:200px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{font-family:var(--display);font-weight:600}
+.tw{overflow-x:auto}
+.ex{border:0;background:none;padding:0;text-align:left;font-weight:700;color:var(--ink);text-decoration:underline dotted var(--denim);text-underline-offset:4px}
+.ex:hover{color:var(--denim)}
+mark{background:var(--mustardSoft);color:inherit;border-radius:4px;padding:0 3px}
+.end{color:var(--thread);font-weight:800}
+.bad{color:var(--bad);text-decoration:line-through}
+.good{color:var(--ok);font-weight:800}
+/* situations */
+.sit{background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:120px}
+.sit .ic{font-size:30px;line-height:1}
+.sit .q{font-weight:800}
+.sit .ans{display:none}
+.sit.open{border-color:var(--ok);background:var(--okSoft)}
+.sit.open .ans{display:block}
+.sit .ans svg{width:46px;height:46px;vertical-align:middle}
+/* pairs */
+.pairbox{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:110px;align-items:center}
+.pair{display:flex;gap:2px;background:var(--denimSoft);border-radius:12px;padding:6px}
+.pair svg{width:76px;height:76px}
+.ctr{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0}
+.ctr button{width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);font-size:22px;font-weight:800}
+/* sort game */
+.buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bucket{border:2px dashed var(--line);border-radius:14px;padding:8px;min-height:120px;background:var(--paper);min-width:0}
+.bucket h4{margin:0 0 6px;font-family:var(--display);font-size:22px;text-align:center}
+.bucket .chips{justify-content:center}
+.bucket.target{border-color:var(--thread);border-style:solid}
+.qword{font-family:var(--display);font-size:34px;font-weight:700;text-align:center}
+.fb{min-height:26px;font-weight:800;text-align:center}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--bad)}
+/* quiz */
+.quiz{display:flex;flex-direction:column;align-items:center;gap:10px}
+.quiz .pic{width:160px;height:160px;background:var(--paper);border-radius:20px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.quiz .pic svg{width:130px;height:130px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.opt{border:2px solid var(--ink);background:var(--paper);border-radius:12px;padding:8px 18px;font-weight:800;font-size:18px}
+.opt.right{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+.opt.wrong{background:var(--badSoft);border-color:var(--bad);color:var(--bad)}
+.score{font-family:var(--display);font-size:22px}
+/* frames */
+.qa{background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:8px}
+.qa .q{font-weight:800}
+.qa .a{display:none;margin-top:4px}
+.qa.open .a{display:block}
+.qa .fr{font-family:var(--hand);font-size:20px;color:var(--denim)}
+.menu{position:fixed;inset:0;background:rgba(10,15,35,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.menu .in{background:var(--paper);border-radius:18px;padding:16px;max-width:640px;width:100%;max-height:85vh;overflow:auto}
+.menu .in button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:9px 6px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:12px;font-weight:700;font-size:14px;z-index:30;display:none;max-width:90%}
+</style>
+
+<div class="top">
+  <div class="brand">What shall I <span>wear?</span></div>
+  <div class="sp"></div>
+  <button class="tog" id="slowBtn" aria-pressed="false" title="Đọc chậm">🐢 Chậm</button>
+  <button class="tog" id="viBtn" aria-pressed="true" title="Đọc thêm nghĩa tiếng Việt">🇻🇳 Nghĩa</button>
+  <button class="tog" id="menuBtn">☰ Mục lục</button>
+</div>
+
+<main class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide on" data-t="Bìa">
+  <p class="eyebrow">Prepare 1 · Unit 15</p>
+  <h1>What shall I wear?</h1>
+  <p class="lead">Từ vựng quần áo, họa tiết, màu sắc và ngữ pháp mô tả quần áo. Bấm vào <b>bất kỳ từ hay hình nào</b> để nghe máy đọc.</p>
+  <div class="rail"></div>
+  <div class="hangers" id="hangers"></div>
+  <div class="hint">👉 Bấm <b>Tiếp ▶</b> hoặc phím mũi tên → để sang trang · bấm vào áo để nghe tên</div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-t="Quần áo hằng ngày (1)">
+  <p class="eyebrow">Vocabulary 1A</p><h2>Everyday clothes</h2>
+  <div class="legend"><span><span class="pill">★ pair</span> = luôn số nhiều: không dùng <b>a</b>, đi với <b>are</b>, đếm bằng <b>a pair of</b></span></div>
+  <div class="grid" data-cards="A1"></div>
+</section>
+<section class="slide" data-t="Quần áo hằng ngày (2)">
+  <p class="eyebrow">Vocabulary 1A</p><h2>Everyday clothes</h2>
+  <div class="grid" data-cards="A2"></div>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-t="Quần áo theo thời tiết (1)">
+  <p class="eyebrow">Vocabulary 1B</p><h2>Clothes for weather &amp; activities</h2>
+  <p class="lead">Mỗi thẻ có nhãn <b>khi nào mặc</b>. Bấm để nghe từ và câu ví dụ.</p>
+  <div class="grid" data-cards="B1"></div>
+</section>
+<section class="slide" data-t="Quần áo theo thời tiết (2)">
+  <p class="eyebrow">Vocabulary 1B</p><h2>Clothes for weather &amp; activities</h2>
+  <div class="grid" data-cards="B2"></div>
+</section>
+
+<!-- 6 patterns -->
+<section class="slide" data-t="Họa tiết">
+  <p class="eyebrow">Vocabulary 2A</p><h2>Patterns · Họa tiết</h2>
+  <p class="lead">Cùng một chiếc áo thun, sáu kiểu họa tiết. Bấm để nghe.</p>
+  <div class="grid" id="patGrid"></div>
+</section>
+
+<!-- 7 colours -->
+<section class="slide" data-t="Màu sắc">
+  <p class="eyebrow">Vocabulary 2B</p><h2>Colours · Màu sắc</h2>
+  <div class="two">
+    <div class="box"><h3>Màu cơ bản</h3><div class="chips" id="colChips"></div></div>
+    <div class="box"><h3>Đậm · nhạt · sáng rực · nhiều màu</h3><div id="shadeBox"></div></div>
+  </div>
+</section>
+
+<!-- 8 lab -->
+<section class="slide" data-t="Phòng thử đồ">
+  <p class="eyebrow">Dress-up lab</p><h2>Tự tạo bộ đồ – máy đọc cụm từ</h2>
+  <div class="two">
+    <div class="box">
+      <div class="preview" id="labPic"></div>
+      <p class="phrase" id="labPhrase" style="margin:12px 0 0"></p>
+      <div class="formula"><span class="f1">họa tiết</span>+<span class="f2">(đậm/nhạt) màu</span>+<span class="f3">danh từ</span></div>
+      <p style="margin:10px 0 0"><button class="tog" id="labSay">🔊 Nghe cụm từ</button></p>
+    </div>
+    <div class="box" style="display:flex;flex-direction:column;gap:10px">
+      <div><b>1. Món đồ</b><div class="chips" id="labG"></div></div>
+      <div><b>2. Họa tiết</b><div class="chips" id="labP"></div></div>
+      <div><b>3. Đậm / nhạt</b><div class="chips" id="labS"></div></div>
+      <div><b>4. Màu</b><div class="chips" id="labC"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 situations -->
+<section class="slide" data-t="Em nên mặc gì?">
+  <p class="eyebrow">Brainstorm</p><h2>What should I wear? · Em nên mặc gì?</h2>
+  <p class="lead">Đọc tình huống, tự nghĩ câu trả lời trước, rồi bấm thẻ để xem gợi ý và nghe câu <b>You should wear …</b></p>
+  <div class="grid" id="sitGrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))"></div>
+</section>
+
+<!-- 10 plurals -->
+<section class="slide" data-t="Số nhiều">
+  <p class="eyebrow">Grammar 1</p><h2>Plurals · Cách viết số nhiều</h2>
+  <p class="lead">Bấm vào từ số ít để biến thành số nhiều. Phần đuôi được tô màu.</p>
+  <div class="two" id="plGrid"></div>
+  <div class="box" style="margin-top:14px"><h3>Luôn ở số nhiều → đi với <i>are</i> / <i>They</i></h3>
+    <p style="margin:0">clothes · jeans · trousers · shorts · glasses · pyjamas</p>
+    <p style="margin:6px 0 0"><button class="ex" data-say="My jeans are blue.">My jeans <b class="good">are</b> blue.</button> &nbsp; <span class="bad">My jeans is blue.</span></p>
+    <p style="margin:4px 0 0"><button class="ex" data-say="Where are my glasses? They're on the table.">Where are my glasses? <b class="good">They're</b> on the table.</button></p>
+  </div>
+</section>
+
+<!-- 11 pair -->
+<section class="slide" data-t="a pair of / a piece of">
+  <p class="eyebrow">Grammar 1</p><h2>a pair of · a piece of</h2>
+  <div class="two">
+    <div class="box"><h3>Đếm theo đôi: <i>a pair of</i></h3>
+      <div class="chips" id="pairItem" style="justify-content:center;margin-bottom:6px"></div>
+      <div class="pairbox" id="pairBox"></div>
+      <div class="ctr"><button id="pairMinus" aria-label="Bớt một đôi">−</button><span class="phrase" id="pairTxt" style="font-size:24px;text-align:center;min-width:200px"></span><button id="pairPlus" aria-label="Thêm một đôi">+</button></div>
+      <p class="lead" style="text-align:center;margin:0">Từ 2 trở lên: <b>pairs</b> of</p>
+    </div>
+    <div class="box"><h3>Đếm món đồ: <i>a piece of clothing</i></h3>
+      <p><button class="ex" data-say="a piece of clothing">a piece of clothing</button> = một món đồ</p>
+      <p><button class="ex" data-say="Yesterday, I went to the mall, and I bought two pieces of clothing.">Yesterday, I went to the mall, and I bought <mark>two pieces of clothing</mark>.</button></p>
+      <p class="vi">Hôm qua tôi đi trung tâm mua sắm và mua 2 món đồ.</p>
+      <h3 style="margin-top:14px">Không dùng <i>a</i> với từ số nhiều</h3>
+      <p><span class="bad">a jeans</span> → <button class="ex" data-say="a pair of jeans">a pair of jeans</button> hoặc <button class="ex" data-say="jeans">jeans</button></p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 adjective order -->
+<section class="slide" data-t="Trật tự tính từ">
+  <p class="eyebrow">Grammar 2</p><h2>Tính từ đứng TRƯỚC danh từ</h2>
+  <p class="lead">Tiếng Việt: <b>áo thun – kẻ sọc – xanh</b>. Tiếng Anh: <b>striped – blue – T-shirt</b>. Bấm các ô theo đúng thứ tự tiếng Anh.</p>
+  <div class="box">
+    <div class="vi" id="ordVi" style="font-size:18px"></div>
+    <div class="chips" id="ordAns" style="min-height:48px;border:2px dashed var(--line);border-radius:12px;padding:6px;margin:8px 0"></div>
+    <div class="chips" id="ordBank"></div>
+    <div class="fb" id="ordFb" style="margin-top:8px"></div>
+    <p style="margin:6px 0 0;text-align:center"><button class="tog" id="ordNext">Câu khác ▶</button></p>
+  </div>
+  <div class="tw" style="margin-top:12px"><table>
+    <tr><th>Tiếng Việt</th><th>Tiếng Anh</th></tr>
+    <tr><td>chân váy dài họa tiết hoa</td><td><button class="ex" data-say="a long floral skirt">a long floral skirt</button></td></tr>
+    <tr><td>áo len xanh dương đậm</td><td><button class="ex" data-say="a dark blue sweater">a dark blue sweater</button></td></tr>
+    <tr><td>một đôi giày thể thao trắng</td><td><button class="ex" data-say="a pair of white trainers">a pair of white trainers</button></td></tr>
+    <tr><td>váy đỏ</td><td><button class="ex" data-say="a red dress">a red dress</button> &nbsp;<span class="bad">a dress red</span></td></tr>
+  </table></div>
+</section>
+
+<!-- 13 wear -->
+<section class="slide" data-t="wear / is wearing / should / will">
+  <p class="eyebrow">Grammar 2</p><h2>Bốn dạng của <i>wear</i></h2>
+  <div class="grid" id="wearGrid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))"></div>
+</section>
+
+<!-- 14 pronunciation -->
+<section class="slide" data-t="Phát âm /s/ /z/ /ɪz/">
+  <p class="eyebrow">Pronunciation</p><h2>Đuôi số nhiều: /s/ · /z/ · /ɪz/</h2>
+  <p class="lead">Bấm <b>🔊</b> nghe từ, rồi chọn ô âm cuối đúng. /ɪz/ thêm một âm tiết: <i>dress → dress-es</i>.</p>
+  <div class="box" style="margin-bottom:12px">
+    <div class="qword" id="sortWord"></div>
+    <p style="text-align:center;margin:4px 0"><button class="tog" id="sortSay">🔊 Nghe</button></p>
+    <div class="fb" id="sortFb"></div>
+  </div>
+  <div class="buckets" id="buckets"></div>
+  <p class="lead" style="margin-top:10px">/ɪz/ sau âm xuýt (s, z, ʃ, tʃ, dʒ) · /s/ sau âm vô thanh (p, t, k, f) · /z/ sau các âm còn lại. Đặt tay lên cổ: âm hữu thanh làm cổ <b>rung</b>.</p>
+</section>
+
+<!-- 15 frames -->
+<section class="slide" data-t="Mẫu câu trả lời">
+  <p class="eyebrow">Speaking &amp; Writing</p><h2>Mẫu câu trả lời</h2>
+  <p class="lead">Bấm câu hỏi để nghe và xem khung trả lời + câu mẫu. Tự trả lời to trước khi mở.</p>
+  <div id="qaBox"></div>
+  <div class="box"><h3>Nối ý cho câu dài hơn</h3>
+    <p style="margin:2px 0"><b>and</b> và · <button class="ex" data-say="I'm wearing a striped T-shirt and light blue jeans.">I'm wearing a striped T-shirt and light blue jeans.</button></p>
+    <p style="margin:2px 0"><b>but</b> nhưng · <button class="ex" data-say="My grandpa is old, but he loves carnivals.">My grandpa is old, but he loves carnivals.</button></p>
+    <p style="margin:2px 0"><b>so</b> vì vậy · <button class="ex" data-say="It's cold, so you should wear a scarf.">It's cold, so you should wear a scarf.</button></p>
+    <p style="margin:2px 0"><b>because</b> vì · <button class="ex" data-say="I like my hoody because it is very comfortable.">I like my hoody because it is very comfortable.</button></p>
+  </div>
+</section>
+
+<!-- 16 quiz -->
+<section class="slide" data-t="Trò chơi: Đoán hình">
+  <p class="eyebrow">Game</p><h2>Nhìn hình – chọn từ</h2>
+  <div class="quiz">
+    <div class="score" id="qzScore"></div>
+    <div class="pic" id="qzPic"></div>
+    <div class="opts" id="qzOpts"></div>
+    <div class="fb" id="qzFb"></div>
+    <button class="tog" id="qzNext">Câu tiếp ▶</button>
+  </div>
+</section>
+
+<!-- 17 end -->
+<section class="slide" data-t="Kết thúc">
+  <p class="eyebrow">Well done!</p><h2>Sẵn sàng làm bài luyện tập</h2>
+  <p class="lead">Trước khi làm bài, em tự kiểm tra:</p>
+  <div class="box"><ul style="margin:0;padding-left:20px;line-height:1.9">
+    <li>Nói được tên 20 món đồ và nghĩa 6 họa tiết.</li>
+    <li>Viết đúng: dresses, watches, boxes, parties.</li>
+    <li>jeans / glasses / trousers / clothes + <b>are</b>; a <b>pair</b> of, two <b>pairs</b> of.</li>
+    <li>Tính từ + màu + danh từ: a dark blue sweater.</li>
+    <li>wear / wears · is wearing · should wear · will wear.</li>
+  </ul></div>
+  <div class="rail"></div><div class="hangers" id="hangers2"></div>
+</section>
+
+</main>
+
+<nav class="nav">
+  <button class="nbtn" id="prev">◀ Trước</button>
+  <div class="prog"><i id="progBar"></i></div>
+  <span class="cnt" id="cnt"></span>
+  <button class="nbtn go" id="next">Tiếp ▶</button>
+</nav>
+<div class="menu" id="menu" hidden><div class="in"><h2 style="font-size:24px">Mục lục</h2><div id="menuList"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== GIỌNG ĐỌC ===================== */
+const synth=window.speechSynthesis;let EN=null,VIV=null;
+function pickVoices(){if(!synth)return;const vs=synth.getVoices();
+  const rank=v=>(/en[-_](US|GB)/i.test(v.lang)?10:0)+(/Natural|Neural|Online|Premium|Enhanced/i.test(v.name)?30:0)+(/Google/i.test(v.name)?18:0)+(/Samantha|Ava|Aria|Jenny|Libby|Sonia|Emma|Daniel|Karen/i.test(v.name)?15:0);
+  const en=vs.filter(v=>/^en/i.test(v.lang)).sort((a,b)=>rank(b)-rank(a));EN=en[0]||null;VIV=vs.find(v=>/^vi/i.test(v.lang))||null;}
+if(synth){pickVoices();synth.onvoiceschanged=pickVoices;}
+let SLOW=false,VI=true;
+function utter(t,lang){const u=new SpeechSynthesisUtterance(t);if(lang==='vi'){u.lang='vi-VN';if(VIV)u.voice=VIV;u.rate=1;}else{u.lang=EN?EN.lang:'en-US';if(EN)u.voice=EN;u.rate=SLOW?0.6:0.88;}return u;}
+function say(t,vi){if(!synth){toast('Trình duyệt này chưa đọc được. Hãy dùng Chrome hoặc Safari.');return;}synth.cancel();
+  setTimeout(()=>{synth.speak(utter(t,'en'));if(vi&&VI&&VIV)synth.speak(utter(vi,'vi'));},30);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.k);toast.k=setTimeout(()=>t.style.display='none',3000);}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b)say(b.dataset.say,b.dataset.vi);});
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ===================== HÌNH VẼ QUẦN ÁO (SVG) ===================== */
+let UID=0;
+const COLORS={red:'#D7413A',blue:'#2F6FD0',green:'#2E9B5A',yellow:'#F2C230',pink:'#EE7FB0',purple:'#8A55C8',orange:'#F08A2C',brown:'#8A5A36',grey:'#8E949E',black:'#2A2C33',white:'#F6F7FA'};
+function shade(hex,s){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
+  if(s==='dark'){r*=.55;g*=.55;b*=.55;}else if(s==='light'){r+=(255-r)*.55;g+=(255-g)*.55;b+=(255-b)*.55;}
+  else if(s==='bright'){const m=Math.max(r,g,b)||1;r=Math.min(255,r/m*255*1.05);g=Math.min(255,g/m*255*1.05);b=Math.min(255,b/m*255*1.05);if(Math.min(r,g,b)>200){r=255;g=230;b=0;}}
+  return '#'+[r,g,b].map(x=>Math.round(x).toString(16).padStart(2,'0')).join('');}
+function patDef(id,p,base){const dk=shade(base,'dark'),lt='#FFFFFF';
+  if(p==='striped')return `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="${base}"/><rect width="10" height="4" fill="${lt}" opacity=".85"/></pattern>`;
+  if(p==='spotted')return `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="${base}"/><circle cx="3" cy="3" r="2.2" fill="${lt}"/><circle cx="9" cy="9" r="2.2" fill="${lt}"/></pattern>`;
+  if(p==='checked')return `<pattern id="${id}" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="${base}"/><rect width="7" height="14" fill="${dk}" opacity=".45"/><rect width="14" height="7" fill="${dk}" opacity=".45"/><path d="M0 3.5h14M3.5 0v14" stroke="${lt}" stroke-width=".8" opacity=".6"/></pattern>`;
+  if(p==='floral')return `<pattern id="${id}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="${base}"/><g transform="translate(9 9)">${[0,72,144,216,288].map(a=>`<ellipse rx="2" ry="3.6" cy="-3.2" fill="${lt}" transform="rotate(${a})"/>`).join('')}<circle r="1.8" fill="#F2C230"/></g><circle cx="1" cy="1" r="1" fill="${lt}" opacity=".7"/></pattern>`;
+  if(p==='printed')return `<pattern id="${id}" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="${base}"/><g transform="translate(50 52)"><path d="M0 -13 L4 -4 L13 -4 L6 2 L9 12 L0 6 L-9 12 L-6 2 L-13 -4 L-4 -4 Z" fill="${lt}"/></g></pattern>`;
+  return `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="${base}"/></pattern>`;}
+const OUT='stroke="#1B2547" stroke-width="2.2" stroke-linejoin="round"';
+const SHAPES={
+ tshirt:f=>`<path d="M30 18 L40 12 Q50 22 60 12 L70 18 L88 32 L80 44 L70 38 L70 88 L30 88 L30 38 L20 44 L12 32 Z" fill="${f}" ${OUT}/>`,
+ shirt:f=>`<path d="M32 14 L42 10 L50 18 L58 10 L68 14 L86 30 L92 70 L82 72 L72 40 L72 90 L28 90 L28 40 L18 72 L8 70 L14 30 Z" fill="${f}" ${OUT}/><path d="M42 10 L50 24 L58 10" fill="none" ${OUT}/><path d="M50 24V90" fill="none" stroke="#1B2547" stroke-width="1.2"/>${[34,48,62,76].map(y=>`<circle cx="53" cy="${y}" r="1.6" fill="#1B2547"/>`).join('')}`,
+ dress:f=>`<path d="M38 8 L46 8 Q50 16 54 8 L62 8 L64 30 Q60 36 62 40 L86 90 L14 90 L38 40 Q40 36 36 30 Z" fill="${f}" ${OUT}/><path d="M38 40 Q50 44 62 40" fill="none" stroke="#1B2547" stroke-width="1.4"/>`,
+ skirt:f=>`<path d="M30 28 L70 28 L88 86 L12 86 Z" fill="${f}" ${OUT}/><rect x="29" y="20" width="42" height="9" rx="2" fill="${f}" ${OUT}/><path d="M40 30 L34 86 M60 30 L66 86 M50 30 V86" stroke="#1B2547" stroke-width="1" opacity=".5"/>`,
+ trousers:f=>`<path d="M28 12 L72 12 L76 90 L56 90 L50 38 L44 90 L24 90 Z" fill="${f}" ${OUT}/><path d="M28 20 H72" stroke="#1B2547" stroke-width="1.4"/>`,
+ jeans:f=>`<path d="M28 12 L72 12 L76 90 L56 90 L50 38 L44 90 L24 90 Z" fill="${f}" ${OUT}/><path d="M28 20 H72 M34 20 Q34 32 44 32 M66 20 Q66 32 56 32" fill="none" stroke="#F2C230" stroke-width="1.4" stroke-dasharray="3 2"/><circle cx="50" cy="16" r="1.8" fill="#F2C230"/>`,
+ shorts:f=>`<path d="M24 24 L76 24 L82 66 L56 66 L50 44 L44 66 L18 66 Z" fill="${f}" ${OUT}/><path d="M24 32 H76" stroke="#1B2547" stroke-width="1.4"/>`,
+ jacket:f=>`<path d="M32 14 L42 10 L50 16 L58 10 L68 14 L86 28 L92 76 L80 78 L72 42 L72 82 L28 82 L28 42 L20 78 L8 76 L14 28 Z" fill="${f}" ${OUT}/><path d="M50 16 V82" stroke="#1B2547" stroke-width="2"/><path d="M28 74 H72" stroke="#1B2547" stroke-width="1.4"/><rect x="33" y="52" width="10" height="2" fill="#1B2547"/><rect x="57" y="52" width="10" height="2" fill="#1B2547"/>`,
+ coat:f=>`<path d="M32 12 L42 8 L50 18 L58 8 L68 12 L86 26 L92 74 L80 76 L72 40 L74 94 L26 94 L28 40 L20 76 L8 74 L14 26 Z" fill="${f}" ${OUT}/><path d="M42 8 L50 30 L58 8" fill="none" ${OUT}/><path d="M50 30 V94" stroke="#1B2547" stroke-width="1.2"/>${[40,54,68,82].map(y=>`<circle cx="45" cy="${y}" r="2" fill="#1B2547"/><circle cx="55" cy="${y}" r="2" fill="#1B2547"/>`).join('')}`,
+ sweater:f=>`<path d="M32 16 Q50 26 68 16 L86 26 L94 74 L82 76 L72 42 L72 86 L28 86 L28 42 L18 76 L6 74 L14 26 Z" fill="${f}" ${OUT}/><path d="M28 80 H72 M7 70 L19 72 M93 70 L81 72" stroke="#1B2547" stroke-width="1.4"/><path d="M36 18 Q50 28 64 18" fill="none" stroke="#1B2547" stroke-width="1.4"/>`,
+ cardigan:f=>`<path d="M32 16 L44 14 L50 40 L56 14 L68 16 L86 26 L94 74 L82 76 L72 42 L72 86 L28 86 L28 42 L18 76 L6 74 L14 26 Z" fill="${f}" ${OUT}/><path d="M50 40 V86" stroke="#1B2547" stroke-width="1.4"/>${[48,58,68,78].map(y=>`<circle cx="54" cy="${y}" r="1.8" fill="#1B2547"/>`).join('')}<path d="M44 14 L50 40 L56 14" fill="none" stroke="#1B2547" stroke-width="1.4"/>`,
+ tanktop:f=>`<path d="M36 10 L42 10 Q44 30 50 30 Q56 30 58 10 L64 10 Q66 30 72 36 L72 90 L28 90 L28 36 Q34 30 36 10 Z" fill="${f}" ${OUT}/>`,
+ swimsuit:f=>`<path d="M34 10 L40 10 Q42 28 50 28 Q58 28 60 10 L66 10 Q68 32 66 50 Q66 60 76 72 Q60 72 56 86 L44 86 Q40 72 24 72 Q34 60 34 50 Q32 32 34 10 Z" fill="${f}" ${OUT}/>`,
+ pyjamas:f=>`<path d="M32 10 L42 8 L50 16 L58 8 L68 10 L84 22 L88 50 L78 52 L70 32 L70 56 L30 56 L30 32 L22 52 L12 50 L16 22 Z" fill="${f}" ${OUT}/><path d="M32 58 L68 58 L70 94 L54 94 L50 70 L46 94 L30 94 Z" fill="${f}" ${OUT}/><path d="M76 16 a6 6 0 1 0 6 8 a5 5 0 1 1 -6 -8 Z" fill="#F2C230"/>`,
+ uniform:f=>`<path d="M32 14 L42 10 L50 18 L58 10 L68 14 L84 26 L86 46 L76 48 L72 36 L72 90 L28 90 L28 36 L24 48 L14 46 L16 26 Z" fill="#F6F7FA" ${OUT}/><path d="M42 10 L50 22 L58 10" fill="none" ${OUT}/><path d="M50 22 L46 28 L50 64 L54 28 Z" fill="${f}" ${OUT}/><rect x="56" y="40" width="10" height="8" rx="1" fill="none" stroke="#1B2547" stroke-width="1.2"/>`,
+ raincoat:f=>`<path d="M30 30 Q30 6 50 6 Q70 6 70 30 Z" fill="${f}" ${OUT}/><path d="M32 22 L28 40 L20 78 L8 76 L14 28 Z M68 22 L72 40 L80 78 L92 76 L86 28 Z" fill="${f}" ${OUT}/><path d="M30 26 L70 26 L76 94 L24 94 Z" fill="${f}" ${OUT}/><path d="M50 26 V94" stroke="#1B2547" stroke-width="1.4"/>${[42,58,74].map(y=>`<rect x="46" y="${y}" width="8" height="3" rx="1" fill="#1B2547"/>`).join('')}`,
+ scarf:f=>`<path d="M18 26 Q50 42 82 26 L82 40 Q50 56 18 40 Z" fill="${f}" ${OUT}/><path d="M58 44 L72 42 L76 84 L60 84 Z" fill="${f}" ${OUT}/><path d="M62 84 v8 M66 84 v8 M70 84 v8 M74 84 v8" stroke="#1B2547" stroke-width="1.6"/>`,
+ beanie:f=>`<path d="M22 66 Q20 24 50 22 Q80 24 78 66 Z" fill="${f}" ${OUT}/><rect x="16" y="62" width="68" height="16" rx="4" fill="${f}" ${OUT}/><path d="M24 64v12M32 64v12M40 64v12M48 64v12M56 64v12M64 64v12M72 64v12" stroke="#1B2547" stroke-width="1" opacity=".5"/><circle cx="50" cy="16" r="9" fill="${f}" ${OUT}/>`,
+ socks:f=>`<g><path d="M30 8 h20 v46 q0 8 -6 12 l-18 10 q-12 5 -15 -5 q-2 -8 7 -12 l12 -7 Z" fill="${f}" ${OUT}/><rect x="30" y="8" width="20" height="8" fill="#F6F7FA" ${OUT}/></g><g transform="translate(34 8)"><path d="M30 8 h20 v46 q0 8 -6 12 l-18 10 q-12 5 -15 -5 q-2 -8 7 -12 l12 -7 Z" fill="${f}" ${OUT}/><rect x="30" y="8" width="20" height="8" fill="#F6F7FA" ${OUT}/></g>`,
+ mittens:f=>{const m=`<path d="M14 86 L14 52 Q6 48 6 40 Q6 32 14 34 L14 28 Q14 14 27 14 Q40 14 40 28 L40 86 Z" fill="${f}" ${OUT}/><rect x="12" y="78" width="30" height="10" rx="2" fill="#F6F7FA" ${OUT}/>`;return m+`<g transform="translate(100 0) scale(-1 1)">${m}</g>`;},
+ boots:f=>`<path d="M26 8 h26 v56 l26 10 q10 4 8 18 h-60 Z" fill="${f}" ${OUT}/><rect x="26" y="86" width="60" height="6" fill="#1B2547"/><path d="M26 18 h26" stroke="#1B2547" stroke-width="1.4"/>`,
+ shoes:f=>`<path d="M8 62 Q10 48 28 50 L48 52 Q60 42 72 50 Q90 54 92 68 L92 74 L8 74 Z" fill="${f}" ${OUT}/><rect x="8" y="72" width="84" height="6" rx="2" fill="#1B2547"/>`,
+ trainers:f=>`<path d="M8 60 Q8 44 26 46 L44 48 Q58 34 72 46 Q92 52 92 66 L92 70 L8 70 Z" fill="${f}" ${OUT}/><rect x="6" y="68" width="88" height="10" rx="4" fill="#F6F7FA" ${OUT}/><path d="M50 46 l8 8 M56 42 l8 8 M62 40 l8 8" stroke="#F6F7FA" stroke-width="2.4"/><path d="M24 58 Q40 50 56 62" fill="none" stroke="#F6F7FA" stroke-width="3"/>`,
+ sandals:f=>`<path d="M10 72 Q50 62 90 72 L90 78 Q50 72 10 80 Z" fill="#8A5A36" ${OUT}/><path d="M26 70 Q34 50 46 68 M52 66 Q62 48 74 68" fill="none" stroke="${f}" stroke-width="6" stroke-linecap="round"/><path d="M78 70 Q86 56 88 72" fill="none" stroke="${f}" stroke-width="5" stroke-linecap="round"/>`,
+ flipflops:f=>{const s=`<ellipse cx="25" cy="54" rx="14" ry="34" fill="${f}" ${OUT}/><path d="M14 46 L25 30 L36 46" fill="none" stroke="#1B2547" stroke-width="3" stroke-linecap="round"/>`;return s+`<g transform="translate(46 4)">${s}</g>`;},
+ glasses:f=>`<circle cx="30" cy="52" r="16" fill="#DCEBFA" stroke="${f}" stroke-width="5"/><circle cx="70" cy="52" r="16" fill="#DCEBFA" stroke="${f}" stroke-width="5"/><path d="M46 50 Q50 44 54 50 M14 48 L4 40 M86 48 L96 40" fill="none" stroke="${f}" stroke-width="4" stroke-linecap="round"/>`,
+ sunglasses:f=>`<path d="M10 42 H46 Q46 66 28 66 Q10 66 10 42 Z M54 42 H90 Q90 66 72 66 Q54 66 54 42 Z" fill="#1B2547" stroke="${f}" stroke-width="3"/><path d="M46 46 Q50 40 54 46 M10 44 L2 36 M90 44 L98 36" fill="none" stroke="${f}" stroke-width="4" stroke-linecap="round"/><path d="M16 48 l8 -4" stroke="#fff" stroke-width="3" opacity=".6"/>`,
+ watch:f=>`<rect x="38" y="4" width="24" height="26" rx="4" fill="${f}" ${OUT}/><rect x="38" y="70" width="24" height="26" rx="4" fill="${f}" ${OUT}/><rect x="26" y="28" width="48" height="44" rx="10" fill="#1B2547"/><rect x="31" y="34" width="38" height="32" rx="6" fill="#B8F1C9"/><text x="50" y="56" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#1B2547">12:30</text>`,
+ costume:f=>`<path d="M8 40 Q28 28 50 44 Q72 28 92 40 Q90 64 70 64 Q58 64 50 54 Q42 64 30 64 Q10 64 8 40 Z" fill="${f}" ${OUT}/><ellipse cx="30" cy="48" rx="9" ry="6" fill="#E9EEF7" ${OUT}/><ellipse cx="70" cy="48" rx="9" ry="6" fill="#E9EEF7" ${OUT}/><path d="M80 34 Q90 14 96 10" fill="none" stroke="#F2C230" stroke-width="3"/><circle cx="96" cy="10" r="3" fill="#F2C230"/>`
+};
+function garment(kind,{color='#2F6FD0',pattern='plain',size}={}){
+  const id='p'+(++UID);const f=`url(#${id})`;
+  return `<svg viewBox="0 0 100 100" ${size?`width="${size}" height="${size}"`:''} aria-hidden="true"><defs>${patDef(id,pattern,color)}</defs>${SHAPES[kind](f)}</svg>`;}
+
+/* ===================== DỮ LIỆU TỪ VỰNG ===================== */
+const V=[
+ // A – everyday
+ {g:'A1',w:'dress',ipa:'/dres/',vi:'váy liền',k:'dress',c:'#D7413A',ex:'She is wearing a red dress.'},
+ {g:'A1',w:'skirt',ipa:'/skɜːt/',vi:'chân váy',k:'skirt',c:'#8A55C8',ex:'I have a long purple skirt.'},
+ {g:'A1',w:'shirt',ipa:'/ʃɜːt/',vi:'áo sơ mi',k:'shirt',c:'#79A8E8',ex:'My dad wears a shirt to work.'},
+ {g:'A1',w:'T-shirt',ipa:'/ˈtiː ʃɜːt/',vi:'áo thun, áo phông',k:'tshirt',c:'#2E9B5A',ex:'I am wearing a green T-shirt.'},
+ {g:'A1',w:'jacket',ipa:'/ˈdʒækɪt/',vi:'áo khoác ngắn',k:'jacket',c:'#8A5A36',ex:'Put on your jacket.'},
+ {g:'A1',w:'coat',ipa:'/kəʊt/',vi:'áo khoác dài',k:'coat',c:'#2A2C33',ex:'It is cold. Wear your coat.'},
+ {g:'A1',w:'jeans',ipa:'/dʒiːnz/',vi:'quần bò',k:'jeans',c:'#2F5FA8',p:1,ex:'My jeans are blue.'},
+ {g:'A1',w:'trousers',ipa:'/ˈtraʊzəz/',vi:'quần dài',k:'trousers',c:'#3E4A6B',p:1,ex:'These trousers are too long.'},
+ {g:'A2',w:'shorts',ipa:'/ʃɔːts/',vi:'quần đùi, quần short',k:'shorts',c:'#F08A2C',p:1,ex:'I wear shorts in summer.'},
+ {g:'A2',w:'shoes',ipa:'/ʃuːz/',vi:'giày',k:'shoes',c:'#2A2C33',p:1,ex:'I need a pair of shoes.'},
+ {g:'A2',w:'trainers',ipa:'/ˈtreɪnəz/',vi:'giày thể thao',k:'trainers',c:'#D7413A',p:1,ex:'We wear trainers when we play sport.'},
+ {g:'A2',w:'socks',ipa:'/sɒks/',vi:'tất (vớ)',k:'socks',c:'#EE7FB0',p:1,ex:'I have two pairs of socks.'},
+ {g:'A2',w:'glasses',ipa:'/ˈɡlɑːsɪz/',vi:'kính mắt',k:'glasses',c:'#8A5A36',p:1,ex:'My grandma wears glasses.'},
+ {g:'A2',w:'digital watch',ipa:'/ˌdɪdʒɪtl ˈwɒtʃ/',vi:'đồng hồ điện tử',k:'watch',c:'#2F6FD0',ex:'My digital watch tells me the time.'},
+ {g:'A2',w:'uniform',ipa:'/ˈjuːnɪfɔːm/',vi:'đồng phục',k:'uniform',c:'#D7413A',ex:'I wear a uniform to school.'},
+ {g:'A2',w:'pyjamas',ipa:'/pəˈdʒɑːməz/',vi:'đồ ngủ',k:'pyjamas',c:'#79A8E8',p:1,pat:'spotted',ex:'I wear pyjamas at night.'},
+ // B – weather
+ {g:'B1',w:'sweater',ipa:'/ˈswetə/',vi:'áo len chui đầu',k:'sweater',c:'#C2502E',t:'❄️ trời lạnh',ex:'It is cold. You should wear a sweater.'},
+ {g:'B1',w:'cardigan',ipa:'/ˈkɑːdɪɡən/',vi:'áo khoác len cài cúc',k:'cardigan',c:'#C9B79C',t:'🌙 se lạnh, buổi tối',ex:'Put on your cardigan in the evening.'},
+ {g:'B1',w:'scarf',ipa:'/skɑːf/',vi:'khăn quàng cổ',k:'scarf',c:'#2F6FD0',pat:'striped',t:'❄️ trời lạnh',ex:'Wear a warm scarf.'},
+ {g:'B1',w:'beanie',ipa:'/ˈbiːni/',vi:'mũ len ôm đầu',k:'beanie',c:'#2E9B5A',t:'🏔️ đi Sa Pa',ex:'In Sa Pa, you should wear a beanie.'},
+ {g:'B1',w:'mittens',ipa:'/ˈmɪtnz/',vi:'găng tay liền ngón',k:'mittens',c:'#D7413A',p:1,t:'🥶 rất lạnh',ex:'Mittens keep your hands warm.'},
+ {g:'B1',w:'boots',ipa:'/buːts/',vi:'ủng, bốt',k:'boots',c:'#8A5A36',p:1,t:'🥾 leo núi',ex:'Wear boots in the mountains.'},
+ {g:'B1',w:'raincoat',ipa:'/ˈreɪnkəʊt/',vi:'áo mưa',k:'raincoat',c:'#F2C230',t:'🌧️ trời mưa',ex:'It is raining. Wear a raincoat.'},
+ {g:'B2',w:'swimsuit',ipa:'/ˈswɪmsuːt/',vi:'đồ bơi',k:'swimsuit',c:'#2BB3B1',pat:'floral',t:'🏊 đi bơi',ex:'Take your swimsuit to the beach.'},
+ {g:'B2',w:'flip-flops',ipa:'/ˈflɪp flɒps/',vi:'dép xỏ ngón (dép tông)',k:'flipflops',c:'#F08A2C',p:1,t:'🏖️ đi biển',ex:'I wear flip-flops at the beach.'},
+ {g:'B2',w:'tank top',ipa:'/ˈtæŋk tɒp/',vi:'áo ba lỗ',k:'tanktop',c:'#F2C230',t:'☀️ trời nóng',ex:'It is hot. Wear a tank top.'},
+ {g:'B2',w:'sunglasses',ipa:'/ˈsʌnɡlɑːsɪz/',vi:'kính râm',k:'sunglasses',c:'#D7413A',p:1,t:'😎 trời nắng',ex:'It is sunny. Wear your sunglasses.'},
+ {g:'B2',w:'sandals',ipa:'/ˈsændlz/',vi:'dép quai hậu, xăng-đan',k:'sandals',c:'#EE7FB0',p:1,t:'🌴 đi chơi',ex:'I wear sandals in summer.'},
+ {g:'B2',w:'costume',ipa:'/ˈkɒstjuːm/',vi:'trang phục hóa trang',k:'costume',c:'#8A55C8',t:'🎭 lễ hội',ex:'At the carnival, people wear funny costumes.'}
+];
+const byW=w=>V.find(x=>x.w===w);
+function cardHTML(x){return `<button class="card" data-w="${esc(x.w)}">${x.p?'<span class="star">★ pair</span>':''}${garment(x.k,{color:x.c,pattern:x.pat||'plain'})}
+  <div class="w">${esc(x.w)}</div><div class="ipa">${esc(x.ipa)}</div><div class="vi">${esc(x.vi)}</div>${x.t?`<span class="tag">${esc(x.t)}</span>`:''}</button>`;}
+document.querySelectorAll('[data-cards]').forEach(g=>{g.innerHTML=V.filter(x=>x.g===g.dataset.cards).map(cardHTML).join('');});
+document.addEventListener('click',e=>{const c=e.target.closest('.card[data-w]');if(!c)return;const x=byW(c.dataset.w);
+  document.querySelectorAll('.card.say').forEach(k=>k.classList.remove('say'));c.classList.add('say');
+  if(!synth)return toast('Trình duyệt này chưa đọc được.');synth.cancel();
+  setTimeout(()=>{synth.speak(utter(x.w,'en'));if(VI&&VIV)synth.speak(utter(x.vi,'vi'));synth.speak(utter(x.ex,'en'));},30);});
+
+/* trang bìa */
+const HANG=[['tshirt','#2E9B5A','striped'],['dress','#D7413A','spotted'],['shirt','#79A8E8','checked'],['skirt','#8A55C8','floral'],['sweater','#C2502E','plain'],['jeans','#2F5FA8','plain'],['raincoat','#F2C230','plain']];
+const HW={tshirt:'striped T-shirt',dress:'spotted dress',shirt:'checked shirt',skirt:'floral skirt',sweater:'sweater',jeans:'jeans',raincoat:'raincoat'};
+['#hangers','#hangers2'].forEach(s=>{$(s).innerHTML=HANG.map(([k,c,p])=>`<button class="hang" style="border:0;background:none;padding:0" data-say="${HW[k]}"><span class="hook"></span>${garment(k,{color:c,pattern:p})}</button>`).join('');});
+
+/* họa tiết */
+const PATS=[['plain','/pleɪn/','trơn','#D7413A'],['striped','/straɪpt/','có sọc, kẻ sọc','#2F6FD0'],['spotted','/ˈspɒtɪd/','có đốm, chấm bi','#2A2C33'],['checked','/tʃekt/','ca-rô','#D7413A'],['floral','/ˈflɔːrəl/','có họa tiết hoa','#2E9B5A'],['printed','/ˈprɪntɪd/','có hình in','#8A55C8']];
+$('#patGrid').innerHTML=PATS.map(([p,ipa,vi,c])=>`<button class="card" data-say="${p}. a ${p} T-shirt" data-vi="${vi}">${garment('tshirt',{color:c,pattern:p})}<div class="w">${p}</div><div class="ipa">${ipa}</div><div class="vi">${vi}</div><span class="tag">a ${p} T-shirt</span></button>`).join('');
+
+/* màu */
+$('#colChips').innerHTML=Object.keys(COLORS).map(c=>`<button class="chip" data-say="${c}"><span class="sw" style="background:${COLORS[c]}"></span>${c}</button>`).join('');
+const SH=[['dark','đậm, tối','a dark blue sweater','sweater','#2F6FD0','dark'],['light','nhạt','light blue jeans','jeans','#2F6FD0','light'],['bright','sáng rực','a bright yellow raincoat','raincoat','#F2C230','bright'],['colourful','nhiều màu, sặc sỡ','colourful clothes','tshirt','#EE7FB0','colourful']];
+$('#shadeBox').innerHTML=SH.map(([w,vi,ex,k,c,s])=>`<button class="ex" data-say="${w}. ${ex}" data-vi="${vi}" style="display:flex;gap:10px;align-items:center;text-decoration:none;margin-bottom:6px">${s==='colourful'?`<svg viewBox="0 0 100 100" width="54" height="54" aria-hidden="true"><defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#D7413A"/><stop offset=".25" stop-color="#F2C230"/><stop offset=".5" stop-color="#2E9B5A"/><stop offset=".75" stop-color="#2F6FD0"/><stop offset="1" stop-color="#8A55C8"/></linearGradient></defs>${SHAPES.tshirt('url(#rb)')}</svg>`:garment(k,{color:shade(c,s),size:54})}<span><b>${w}</b> · ${vi}<br><span style="font-weight:600">${ex}</span></span></button>`).join('');
+
+/* ===================== PHÒNG THỬ ĐỒ ===================== */
+const LG=[['tshirt','T-shirt'],['shirt','shirt'],['dress','dress'],['skirt','skirt'],['sweater','sweater'],['jacket','jacket'],['scarf','scarf'],['beanie','beanie'],['trousers','trousers',1],['socks','socks',1],['shorts','shorts',1]];
+const LAB={g:'tshirt',p:'striped',s:'',c:'blue'};
+function labPhrase(){const g=LG.find(x=>x[0]===LAB.g);const adj=[LAB.p!=='plain'?LAB.p:'',LAB.s?LAB.s:'',LAB.c].filter(Boolean);
+  const html=(LAB.p!=='plain'?`<span class="p">${LAB.p}</span> `:'')+`<span class="c">${LAB.s?LAB.s+' ':''}${LAB.c}</span> <span class="n">${g[1]}</span>`;
+  let art;if(g[2])art='a pair of';else art=/^[aeiou]/.test(adj[0])?'an':'a';
+  return {text:`${art} ${adj.join(' ')} ${g[1]}`,html:`${art} ${html}`};}
+function drawLab(){$('#labPic').innerHTML=garment(LAB.g,{color:LAB.s?shade(COLORS[LAB.c],LAB.s):COLORS[LAB.c],pattern:LAB.p});
+  const ph=labPhrase();$('#labPhrase').innerHTML=ph.html;
+  ['G','P','S','C'].forEach(k=>document.querySelectorAll('#lab'+k+' .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===LAB[{G:'g',P:'p',S:'s',C:'c'}[k]])));}
+$('#labG').innerHTML=LG.map(([k,n])=>`<button class="chip" data-v="${k}">${n}</button>`).join('');
+$('#labP').innerHTML=PATS.map(([p])=>`<button class="chip" data-v="${p}">${p}</button>`).join('');
+$('#labS').innerHTML=[['','—'],['dark','dark'],['light','light'],['bright','bright']].map(([v,n])=>`<button class="chip" data-v="${v}">${n}</button>`).join('');
+$('#labC').innerHTML=Object.keys(COLORS).map(c=>`<button class="chip" data-v="${c}"><span class="sw" style="background:${COLORS[c]}"></span>${c}</button>`).join('');
+['G','P','S','C'].forEach(k=>$('#lab'+k).addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;LAB[{G:'g',P:'p',S:'s',C:'c'}[k]]=b.dataset.v;drawLab();say(labPhrase().text);}));
+$('#labSay').onclick=()=>say(labPhrase().text);
+drawLab();
+
+/* ===================== TÌNH HUỐNG ===================== */
+const SIT=[['❄️','Hôm nay trời rất lạnh.',"It's very cold today. You should wear a warm sweater, a scarf and a beanie.",['sweater','scarf','beanie']],
+ ['🌧️','Ngoài trời đang mưa.',"It's raining. You should wear a raincoat and boots.",['raincoat','boots']],
+ ['🏖️','Ngày mai tôi đi biển.',"You should wear a swimsuit, flip-flops and sunglasses.",['swimsuit','flip-flops','sunglasses']],
+ ['🏔️','Tháng 12 tôi đi Sa Pa.',"Sa Pa is very cold in December. You should wear a beanie, mittens and a warm coat.",['beanie','mittens','coat']],
+ ['🥾','Cuối tuần tôi đi leo núi.',"You should wear boots and a warm jacket.",['boots','jacket']],
+ ['🏫','Ngày mai tôi đi học.',"You should wear your school uniform and shoes.",['uniform','shoes']],
+ ['🎉','Tối nay tôi đi dự tiệc sinh nhật.',"You should wear a beautiful floral dress.",['dress']],
+ ['🎭','Tôi đi lễ hội hóa trang.',"You should wear a funny costume and a mask.",['costume']]];
+$('#sitGrid').innerHTML=SIT.map(([ic,vi,en,ws],i)=>`<button class="sit" data-i="${i}"><span class="ic">${ic}</span><span class="q">${esc(vi)}</span><span class="hint" style="margin:0;font-size:13px;padding:2px 8px">Em nên mặc gì? 🤔 Bấm để xem</span><span class="ans">${ws.map(w=>{const x=byW(w);return garment(x.k,{color:x.c,pattern:w==='dress'?'floral':(x.pat||'plain')});}).join('')}<br><b>${esc(en)}</b></span></button>`).join('');
+$('#sitGrid').addEventListener('click',e=>{const b=e.target.closest('.sit');if(!b)return;b.classList.add('open');say(SIT[+b.dataset.i][2]);});
+
+/* ===================== SỐ NHIỀU ===================== */
+const PL=[['Thêm -s','hầu hết các từ',[['coat','s'],['shoe','s'],['skirt','s'],['sock','s']]],['Thêm -es','tận cùng -s, -ss, -x, -ch, -sh',[['dress','es'],['watch','es'],['box','es'],['bus','es']]],['Đổi y → -ies','phụ âm + y',[['party','ies'],['factory','ies'],['story','ies'],['family','ies']]],['Chỉ thêm -s','nguyên âm + y',[['boy','s'],['key','s'],['toy','s'],['day','s']]]];
+$('#plGrid').innerHTML=PL.map(([t,d,ws])=>`<div class="box"><h3>${t}</h3><p class="vi" style="margin:0 0 6px">${d}</p><div class="chips">${ws.map(([w,e])=>`<button class="chip pl" data-w="${w}" data-e="${e}">${w}</button>`).join('')}</div></div>`).join('');
+$('#plGrid').addEventListener('click',e=>{const b=e.target.closest('.pl');if(!b)return;const w=b.dataset.w,en=b.dataset.e;
+  const stem=en==='ies'?w.slice(0,-1):w;const pl=stem+en;b.innerHTML=`${w} → ${stem}<span class="end">${en}</span>`;say(`one ${w}, two ${pl}`);});
+
+/* ===================== A PAIR OF ===================== */
+const PI=[['shoes','shoes','#2A2C33'],['socks','socks','#EE7FB0'],['trainers','trainers','#D7413A'],['mittens','mittens','#D7413A']];
+let PAIR={k:'shoes',n:1};
+const NUMW=['','a','two','three','four','five'];
+function drawPair(){const it=PI.find(x=>x[0]===PAIR.k);
+  $('#pairBox').innerHTML=Array.from({length:PAIR.n},()=>`<span class="pair">${garment(it[1],{color:it[2]})}</span>`).join('');
+  $('#pairTxt').textContent=`${NUMW[PAIR.n]} ${PAIR.n>1?'pairs':'pair'} of ${PAIR.k}`;
+  document.querySelectorAll('#pairItem .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===PAIR.k));}
+$('#pairItem').innerHTML=PI.map(([k])=>`<button class="chip" data-v="${k}">${k}</button>`).join('');
+$('#pairItem').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;PAIR.k=b.dataset.v;drawPair();say($('#pairTxt').textContent);};
+$('#pairPlus').onclick=()=>{if(PAIR.n<5)PAIR.n++;drawPair();say($('#pairTxt').textContent);};
+$('#pairMinus').onclick=()=>{if(PAIR.n>1)PAIR.n--;drawPair();say($('#pairTxt').textContent);};
+drawPair();
+
+/* ===================== TRẬT TỰ TÍNH TỪ ===================== */
+const ORD=[['áo thun kẻ sọc màu xanh',['a','striped','blue','T-shirt'],['a striped blue T-shirt','a blue striped T-shirt']],
+ ['chân váy dài họa tiết hoa',['a','long','floral','skirt'],['a long floral skirt']],
+ ['áo len màu xanh dương đậm',['a','dark','blue','sweater'],['a dark blue sweater']],
+ ['một đôi giày thể thao màu trắng',['a pair of','white','trainers'],['a pair of white trainers']],
+ ['áo sơ mi ca-rô màu đỏ',['a','checked','red','shirt'],['a checked red shirt','a red checked shirt']],
+ ['quần bò màu xanh nhạt',['light','blue','jeans'],['light blue jeans']]];
+let OI=0,OPICK=[],OBANK=[];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function newOrd(){const [vi,ws]=ORD[OI];$('#ordVi').textContent='🇻🇳 '+vi;OPICK=[];do{OBANK=shuffle(ws);}while(OBANK.join(' ')===ws.join(' ')&&ws.length>1);$('#ordFb').textContent='';$('#ordFb').className='fb';drawOrd();}
+function drawOrd(){$('#ordAns').innerHTML=OPICK.map((w,i)=>`<button class="chip on" data-a="${i}">${esc(w)}</button>`).join('');
+  $('#ordBank').innerHTML=OBANK.map((w,i)=>`<button class="chip" data-b="${i}">${esc(w)}</button>`).join('');
+  if(!OBANK.length){const s=OPICK.join(' ');const ok=ORD[OI][2].includes(s);$('#ordFb').textContent=ok?'✅ Đúng rồi! '+s:'❌ Chưa đúng – nhớ: tính từ + màu + danh từ. Bấm vào ô trên để gỡ ra.';$('#ordFb').className='fb '+(ok?'ok':'no');if(ok)say(s);}}
+$('#ordBank').onclick=e=>{const b=e.target.closest('[data-b]');if(!b)return;OPICK.push(OBANK.splice(+b.dataset.b,1)[0]);drawOrd();};
+$('#ordAns').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;OBANK.push(OPICK.splice(+b.dataset.a,1)[0]);$('#ordFb').textContent='';drawOrd();};
+$('#ordNext').onclick=()=>{OI=(OI+1)%ORD.length;newOrd();};
+newOrd();
+
+/* ===================== WEAR ===================== */
+const WR=[['wear / wears','Thói quen','usually · always · often · never · every day',["I usually wear a uniform.","My dad always wears glasses."],'he / she → wears'],
+ ['am / is / are wearing','Đang mặc bây giờ','now · today · Look! · in the photo',["Look! She is wearing a spotted skirt.","Today I'm wearing light blue jeans."],'phải có am / is / are'],
+ ['should wear','Lời khuyên','It\'s cold. · You should …',["It's cold. You should wear a scarf.","You should wear sunglasses."],'should + wear (không -s, -ing)'],
+ ['will wear','Sẽ mặc (tương lai)','tomorrow · next week · If …',["If I go to the beach tomorrow, I will wear flip-flops.","Next month I will wear my new coat."],'will + wear']];
+$('#wearGrid').innerHTML=WR.map(([f,u,sig,exs,note])=>`<div class="box"><h3 style="color:var(--thread)">${f}</h3><p style="margin:0;font-weight:800">${u}</p><p class="vi" style="margin:2px 0 8px">🔎 ${esc(sig)}</p>${exs.map(x=>`<p style="margin:4px 0"><button class="ex" data-say="${esc(x)}">🔊 ${esc(x)}</button></p>`).join('')}<span class="tag">${esc(note)}</span></div>`).join('');
+
+/* ===================== PHÁT ÂM ===================== */
+const SW=[['dresses','iz'],['watches','iz'],['boxes','iz'],['glasses','iz'],['buses','iz'],['coats','s'],['skirts','s'],['shirts','s'],['socks','s'],['cakes','s'],['shoes','z'],['jeans','z'],['trainers','z'],['mittens','z'],['parties','z']];
+const BK=[['s','/s/'],['z','/z/'],['iz','/ɪz/']];let SQ=shuffle(SW),SI=0,SOK=0;
+$('#buckets').innerHTML=BK.map(([k,l])=>`<button class="bucket" data-k="${k}"><h4>${l}</h4><div class="chips" id="bk-${k}"></div></button>`).join('');
+function drawSort(){if(SI>=SQ.length){$('#sortWord').textContent=`🎉 ${SOK}/${SQ.length}`;$('#sortFb').textContent='Xong! Bấm 🔊 để chơi lại.';return;}$('#sortWord').textContent=SQ[SI][0];}
+$('#sortSay').onclick=()=>{if(SI>=SQ.length){SQ=shuffle(SW);SI=0;SOK=0;BK.forEach(([k])=>$('#bk-'+k).innerHTML='');$('#sortFb').textContent='';drawSort();}say(SQ[SI][0]);};
+$('#buckets').onclick=e=>{const b=e.target.closest('.bucket');if(!b||SI>=SQ.length)return;const [w,k]=SQ[SI];
+  if(b.dataset.k===k){SOK++;$('#bk-'+k).insertAdjacentHTML('beforeend',`<span class="chip" data-say="${w}">${w}</span>`);$('#sortFb').textContent='✅ Đúng!';$('#sortFb').className='fb ok';say(w);SI++;setTimeout(drawSort,500);}
+  else{$('#sortFb').textContent='❌ Nghe lại âm cuối nhé.';$('#sortFb').className='fb no';say(w);}};
+drawSort();
+
+/* ===================== MẪU CÂU ===================== */
+const QA=[['What do you usually wear to school?','I usually wear … to school. My … is / are …','I usually wear a white shirt and dark blue trousers to school. My shoes are black.'],
+ ['What are you wearing now?',"Now I'm wearing a (họa tiết) (màu) … and …","Now I'm wearing a striped blue T-shirt and light grey shorts."],
+ ["What do you wear when it's cold?","When it's cold, I wear …","When it's cold, I wear a thick sweater, a warm scarf and a pair of boots."],
+ ['If you go to the beach tomorrow, what will you wear?','If I go to … tomorrow, I will wear …','If I go to the beach tomorrow, I will wear a swimsuit and flip-flops.'],
+ ['What should he or she wear?','You should wear … because …','You should wear a warm sweater because it is very cold there.'],
+ ['Describe your favourite piece of clothing.',"My favourite piece of clothing is my … I wear it … because …",'My favourite piece of clothing is my checked red shirt. I wear it at the weekend because it is very comfortable.']];
+$('#qaBox').innerHTML=QA.map(([q,f,m],i)=>`<button class="qa" data-i="${i}" style="display:block;width:100%;text-align:left"><div class="q">❓ ${esc(q)}</div><div class="a"><div class="fr">✏️ ${esc(f)}</div><div>💡 <i>${esc(m)}</i></div></div></button>`).join('');
+$('#qaBox').onclick=e=>{const b=e.target.closest('.qa');if(!b)return;const [q,,m]=QA[+b.dataset.i];if(b.classList.contains('open'))say(m);else{b.classList.add('open');say(q);}};
+
+/* ===================== ĐOÁN HÌNH ===================== */
+let QZ=shuffle(V),QI=0,QOK=0,QDONE=false;
+function drawQz(){const x=QZ[QI];QDONE=false;$('#qzPic').innerHTML=garment(x.k,{color:x.c,pattern:x.pat||'plain'});
+  const opts=shuffle([x,...shuffle(V.filter(y=>y.w!==x.w&&y.k!==x.k)).slice(0,2)]);
+  $('#qzOpts').innerHTML=opts.map(o=>`<button class="opt" data-w="${esc(o.w)}">${esc(o.w)}</button>`).join('');
+  $('#qzFb').textContent='';$('#qzScore').textContent=`Câu ${QI+1}/${QZ.length} · Đúng ${QOK}`;}
+$('#qzOpts').onclick=e=>{const b=e.target.closest('.opt');if(!b)return;const x=QZ[QI];
+  if(b.dataset.w===x.w){b.classList.add('right');if(!QDONE){QOK++;}QDONE=true;$('#qzFb').textContent='✅ '+x.w+' = '+x.vi;$('#qzFb').className='fb ok';say(x.w,x.vi);$('#qzScore').textContent=`Câu ${QI+1}/${QZ.length} · Đúng ${QOK}`;}
+  else{b.classList.add('wrong');QDONE=true;$('#qzFb').textContent='❌ Thử lại nhé!';$('#qzFb').className='fb no';}};
+$('#qzNext').onclick=()=>{QI++;if(QI>=QZ.length){toast(`🎉 Em đúng ${QOK}/${QZ.length}! Chơi lại nhé.`);QZ=shuffle(V);QI=0;QOK=0;}drawQz();};
+drawQz();
+
+/* ===================== ĐIỀU HƯỚNG ===================== */
+const SL=[...document.querySelectorAll('.slide')];let CUR=0;
+function go(i){CUR=Math.max(0,Math.min(SL.length-1,i));SL.forEach((s,k)=>s.classList.toggle('on',k===CUR));
+  $('#cnt').textContent=(CUR+1)+'/'+SL.length;$('#progBar').style.width=((CUR+1)/SL.length*100)+'%';
+  $('#prev').disabled=CUR===0;$('#next').disabled=CUR===SL.length-1;$('#stage').scrollTop=0;if(synth)synth.cancel();
+  try{history.replaceState(null,'','#s'+(CUR+1));}catch(e){}}
+$('#prev').onclick=()=>go(CUR-1);$('#next').onclick=()=>go(CUR+1);
+document.addEventListener('keydown',e=>{if(e.target.closest('input,textarea'))return;if(e.key==='ArrowRight'||e.key==='PageDown')go(CUR+1);if(e.key==='ArrowLeft'||e.key==='PageUp')go(CUR-1);if(e.key==='Escape')$('#menu').hidden=true;});
+let tx=null;$('#stage').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+$('#stage').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>70&&!e.target.closest('.chips,.buckets'))go(CUR+(dx<0?1:-1));tx=null;});
+$('#menuList').innerHTML=SL.map((s,i)=>`<button data-go="${i}">${i+1}. ${esc(s.dataset.t)}</button>`).join('');
+$('#menuBtn').onclick=()=>{$('#menu').hidden=false;};
+$('#menu').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(+b.dataset.go);$('#menu').hidden=true;};
+$('#slowBtn').onclick=e=>{SLOW=!SLOW;e.currentTarget.setAttribute('aria-pressed',SLOW);toast(SLOW?'🐢 Đọc chậm':'Đọc tốc độ thường');};
+$('#viBtn').onclick=e=>{VI=!VI;e.currentTarget.setAttribute('aria-pressed',VI);toast(VI?'Có đọc nghĩa tiếng Việt':'Chỉ đọc tiếng Anh');};
+const m=/^#s(\d+)$/.exec(location.hash);go(m?(+m[1]-1):0);
+</script>
+</body></html>

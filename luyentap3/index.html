@@ -1269,6 +1269,71 @@ function timeUp(){
   if(!load('autoSent',false)){store('autoSent',true);sendSummary(true);}
 }
 
+/* ================= LÀM BÀI THEO THỨ TỰ + NHẮC PHẦN CHƯA XONG ================= */
+const PART_SETS={vocab:[['vocabA','#vocabA .q','Từ vựng A'],['vocabB','#vocabB .q','Từ vựng B']],
+  dict:[['dictA','#dictA .q.dict','Nghe – viết từ'],['dictB','#dictB .q.dict','Nghe – viết câu'],['dictQ','#dictB .q.follow','Câu hỏi theo bài nghe']],
+  gram:[['gram1','#gramL0 .q','Ngữ pháp bậc 1'],['gram2','#gramL1 .q','Ngữ pháp bậc 2'],['gram3','#gramL2 .q','Ngữ pháp bậc 3']],
+  desc:[['descA','#descA .q','Dịch sang tiếng Anh'],['descB','#descB .q','Sắp xếp từ']],
+  read:[['read','#readBox .q','Đọc hiểu']],write:[['write','#writeBox .card','Viết có hướng dẫn']],
+  aloud:[['aloud','#aloudBox .chunk','Đọc to (gửi bản ghi)']]};
+const PARTS_ORDER=[...document.querySelectorAll('.tab')].map(t=>t.dataset.p).filter(p=>p!=='send');
+function setMissing(id){
+  if(id==='aloud')return TEST.aloud.map((_,i)=>i).filter(i=>!(RESULTS['r'+i]&&RESULTS['r'+i].sent));
+  const st=S(id),tot=SETS[id]?SETS[id].total:0;const out=[];for(let i=0;i<tot;i++)if(st.first[i]==null)out.push(i);return out;}
+function setTotal(id){return id==='aloud'?TEST.aloud.length:(SETS[id]?SETS[id].total:0);}
+function partMissing(p){return (PART_SETS[p]||[]).map(([id,sel,name])=>({id,sel,name,miss:setMissing(id)})).filter(x=>x.miss.length);}
+function partDone(p){return !partMissing(p).length;}
+function firstOpen(){const i=PARTS_ORDER.findIndex(p=>!partDone(p));return i<0?PARTS_ORDER.length:i;}
+function allDone(){return firstOpen()>=PARTS_ORDER.length;}
+(function(){const css=document.createElement('style');css.textContent=`
+.tab.locked{opacity:.5}.tab.locked::after{content:" 🔒"}.tab.donep::after{content:" ✅"}
+.progstrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;font-size:14px;font-weight:600}
+.progstrip .bar{flex:1 1 160px;height:10px;border-radius:99px;background:var(--line);overflow:hidden}.progstrip .bar i{display:block;height:100%;background:var(--sea);transition:width .3s}
+.partnext{margin:18px 0 6px;padding:14px;border-radius:14px;background:var(--seaSoft);text-align:center}
+.partnext .b{font-size:17px;padding:9px 18px}
+.pmiss:not(:empty){margin-top:10px;text-align:left;background:var(--badSoft);color:var(--ink);border-radius:12px;padding:10px 12px}
+.pmiss ul{margin:6px 0 0;padding-left:20px}.pmiss button{margin-left:6px}
+.q.miss,.card.miss,.chunk.miss{outline:3px dashed var(--bad);outline-offset:2px}`;document.head.appendChild(css);})();
+const strip=h('div',{class:'progstrip',id:'progStrip'});$('.tabs').after(strip);
+PARTS_ORDER.forEach((p,k)=>{const pan=$('#p-'+p);const nx=PARTS_ORDER[k+1];
+  const box=h('div',{class:'partnext'},`<button class="b primary" data-nextpart="${p}">${nx?'✅ Xong phần này → sang phần tiếp ▶':'✅ Xong phần cuối → đi nộp bài 📨'}</button><div class="pmiss"></div>`);pan.appendChild(box);});
+function missHTML(p){return '<b>⚠️ Phần này chưa hoàn thành.</b> Em làm tiếp những câu sau nhé:<ul>'+partMissing(p).map(x=>`<li>${esc(x.name)}: câu ${x.miss.map(i=>i+1).join(', ')} <button class="b" data-goto="${p}|${x.sel}|${x.miss[0]}">Đi tới ▶</button></li>`).join('')+'</ul>';}
+function markMiss(p){document.querySelectorAll('.miss').forEach(e=>e.classList.remove('miss'));
+  partMissing(p).forEach(x=>{const els=document.querySelectorAll(x.sel);x.miss.forEach(i=>els[i]&&els[i].classList.add('miss'));});}
+function openTab(p){const t=$(`.tab[data-p="${p}"]`);if(t){ORDER_BYPASS=true;t.click();ORDER_BYPASS=false;}}
+let ORDER_BYPASS=false;
+function remind(p,msgTop){openTab(p);const pm=$('#p-'+p+' .pmiss');pm.innerHTML=(msgTop?'<div>'+msgTop+'</div>':'')+missHTML(p);markMiss(p);
+  setTimeout(()=>pm.scrollIntoView({behavior:'smooth',block:'center'}),120);toast('⚠️ Em chưa hoàn thành phần '+NUM_OF(p)+'. Làm tiếp nhé!',4000);}
+function NUM_OF(p){return '①②③④⑤'[PARTS_ORDER.indexOf(p)]||'';}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.tab');
+  if(t&&!ORDER_BYPASS&&!document.body.classList.contains('timeup')){
+    const p=t.dataset.p;const idx=p==='send'?PARTS_ORDER.length:PARTS_ORDER.indexOf(p);const fo=firstOpen();
+    if(idx>fo){e.preventDefault();e.stopImmediatePropagation();const cur=PARTS_ORDER[fo];
+      remind(cur,p==='send'?'🔒 Em cần làm xong cả 5 phần rồi mới nộp bài.':`🔒 Phần ${NUM_OF(p)} còn khoá. Em làm xong phần ${NUM_OF(cur)} trước.`);return;}}
+  const nb=e.target.closest('[data-nextpart]');
+  if(nb){const p=nb.dataset.nextpart;if(!partDone(p)){remind(p);return;}
+    $('#p-'+p+' .pmiss').innerHTML='';document.querySelectorAll('.miss').forEach(x=>x.classList.remove('miss'));
+    const nx=PARTS_ORDER[PARTS_ORDER.indexOf(p)+1];toast('🎉 Xong phần '+NUM_OF(p)+'!',2500);openTab(nx||'send');refreshOrder();return;}
+  const g=e.target.closest('[data-goto]');
+  if(g){const [p,sel,i]=g.dataset.goto.split('|');openTab(p);const el=document.querySelectorAll(sel)[+i];if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),120);}
+  if(e.target.closest('#submitBtn')&&!allDone()&&!document.body.classList.contains('timeup')){e.preventDefault();e.stopImmediatePropagation();remind(PARTS_ORDER[firstOpen()],'🔒 Bài chưa hoàn thành nên chưa nộp được.');}
+},true);
+function refreshOrder(){
+  const fo=firstOpen();const tu=document.body.classList.contains('timeup');
+  document.querySelectorAll('.tab').forEach(t=>{const p=t.dataset.p;const idx=p==='send'?PARTS_ORDER.length:PARTS_ORDER.indexOf(p);
+    t.classList.toggle('locked',!tu&&idx>fo);t.classList.toggle('donep',p!=='send'&&partDone(p));});
+  let done=0,tot=0;PARTS_ORDER.forEach(p=>(PART_SETS[p]||[]).forEach(([id])=>{const T=setTotal(id);tot+=T;done+=T-setMissing(id).length;}));
+  const pc=tot?Math.round(done/tot*100):0;
+  strip.innerHTML=`<span>📊 Đã làm <b>${done}/${tot}</b> câu</span><span class="bar"><i style="width:${pc}%"></i></span><b>${pc}%</b><span>${fo<PARTS_ORDER.length?'· Đang làm: phần '+NUM_OF(PARTS_ORDER[fo])+' '+esc(($(`.tab[data-p="${PARTS_ORDER[fo]}"]`)||{}).textContent||'').replace(/^[①-⑤]\s*/,'').replace(/ ✅| 🔒/g,''):'· ✅ Đã xong cả 5 phần – sang <b>📨 Nộp bài</b>'}</span>`;
+  const cur=document.querySelector('.panel.on');if(cur){const p=cur.id.slice(2);const pm=cur.querySelector('.pmiss');if(pm&&pm.innerHTML&&partDone(p)){pm.innerHTML='';document.querySelectorAll('.miss').forEach(x=>x.classList.remove('miss'));}}
+  document.querySelectorAll('.miss').forEach(el=>{/* bỏ viền khi câu đã làm */});
+}
+['click','input','change','keyup'].forEach(ev=>document.addEventListener(ev,()=>setTimeout(()=>{refreshOrder();const cur=document.querySelector('.panel.on');if(cur&&document.querySelector('.miss'))markMiss(cur.id.slice(2));},60)));
+setInterval(refreshOrder,2000);refreshOrder();
+/* mở lại bài: đưa em tới phần đang làm dở */
+(function(){const fo=firstOpen();if(fo>0&&fo<PARTS_ORDER.length)openTab(PARTS_ORDER[fo]);})();
+
 /* ================= GỬI BÀI CHO GIÁO VIÊN ================= */
 const HAS_URL=/^https:\/\/script\.google(usercontent)?\.com\//.test(SCRIPT_URL);
 if(!HAS_URL)$('#noUrl').hidden=false;
